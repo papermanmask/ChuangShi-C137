@@ -1,0 +1,195 @@
+{
+  "_comment": "SOP 作战室规则资产 — 独立配置层，不侵入核心模拟创作引擎",
+  "version": "1.0",
+
+  "steps": [
+    {
+      "id": "account",
+      "label": "起号",
+      "emoji": "📱",
+      "description": "账号注册、实名认证、三要素一致原则、矩阵号规划",
+      "checklist": [
+        "已注册番茄作家账号",
+        "已完成实名认证（三要素一致：身份证 / 手机号 / 银行卡）",
+        "作家笔名已确定（2-6字，好记）",
+        "作家头像已上传",
+        "手机已安装番茄作家助手 APP",
+        "如多账号运营，身份证来源是直系亲属"
+      ]
+    },
+    {
+      "id": "topic",
+      "label": "选题",
+      "emoji": "🔍",
+      "description": "赛道选择、对标拆解、黄金3秒选题法",
+      "checklist": [
+        "已确定主赛道（女频/男频 + 具体分类）",
+        "已找到对标书（20-50万字，在读>20万）",
+        "已提取对标书的「核心梗」（金手指 / 冲突 / 书名特点）",
+        "已确定书名方向与简介风格"
+      ]
+    },
+    {
+      "id": "create",
+      "label": "创作",
+      "emoji": "✍️",
+      "description": "封面/标签/简介生成、章节创作、防崩坏",
+      "checklist": [
+        "小说封面已生成并上传",
+        "作品标签已确定（主分类+角色/情节标签）",
+        "作品简介已完成（500字以内，番茄爽文风）",
+        "已设置目标篇章数与每章字数",
+        "已审阅AI生成内容，确保设定一致",
+        "已通读全文，删除重复注水内容"
+      ]
+    },
+    {
+      "id": "revenue",
+      "label": "变现",
+      "emoji": "💰",
+      "description": "签约→推荐→首秀→全勤，四个阶梯的冲关策略",
+      "checklist": [
+        "目标：冲2万字 → 申请签约",
+        "条件：冲8万字 + 封面 + 近3天日更4000字 → 申请推荐",
+        "数据：第2章完读率目标 > 50%",
+        "数据：10万字完读率目标 > 20%",
+        "节奏：推荐期后每日稳定2-3章（4000-6000字）",
+        "策略：利用定时发布功能，囤稿发布",
+        "全勤达标：不断更 + 日更≥4000字 / 进阶≥6000字"
+      ]
+    },
+    {
+      "id": "guard",
+      "label": "避雷",
+      "emoji": "🛡️",
+      "description": "平台红线、AI特有坑、发布前自检",
+      "checklist": [
+        "无涉政/涉黑/侮辱英烈内容（建议架空世界观）",
+        "无涉黄内容（全年龄平台，脖子以下不写）",
+        "无过度血腥暴力或封建迷信",
+        "AI生成内容已人工通读，无逻辑崩坏",
+        "已删除重复注水、车轱辘话段落",
+        "发布时「是否使用AI」选项选择「否」"
+      ]
+    }
+  ],
+
+  "tracks": {
+    "female": {
+      "label": "女频",
+      "recommend": "更高的广告单价，同等数据收入高于男频",
+      "subTracks": [
+        {"id": "impersonation", "label": "真假千金", "description": "身份错位+反转打脸"},
+        {"id": "ceo-romance", "label": "霸总甜宠", "description": "霸道总裁+甜宠日常"},
+        {"id": "palace-time-travel", "label": "宫斗穿越", "description": "穿越+宫斗+复仇"},
+        {"id": "cute-baby", "label": "萌宝文", "description": "萌娃助攻+甜宠家庭"}
+      ]
+    },
+    "male": {
+      "label": "男频",
+      "recommend": "套路稳定，AI上手快",
+      "subTracks": [
+        {"id": "urban-doctor", "label": "都市神医", "description": "医术+都市+打脸"},
+        {"id": "warrior-son-in-law", "label": "战神赘婿", "description": "退伍战神+隐忍崛起"},
+        {"id": "survival", "label": "荒岛求生", "description": "孤岛+生存+系统"},
+        {"id": "system-checkin", "label": "系统签到", "description": "签到+升级+躺赢"}
+      ]
+    }
+  },
+
+  "milestones": [
+    {
+      "id": "sign",
+      "label": "签约",
+      "thresholdWords": 20000,
+      "emoji": "🟢",
+      "details": "新手村(0-2万字)：过审后自动弹出签约入口，1-2个工作日签约。签约＝有赚钱资格。"
+    },
+    {
+      "id": "recommend",
+      "label": "推荐",
+      "thresholdWords": 80000,
+      "emoji": "🟡",
+      "requirements": {
+        "minWords": 80000,
+        "hasCover": true,
+        "dailyUpdate": 4000,
+        "consecutiveDays": 3
+      },
+      "details": "练级期(2-8万字)：需同时满足 8万字 + 有封面 + 近3天日更≥4000字。推荐期7天，定生死。"
+    },
+    {
+      "id": "debut",
+      "label": "首秀",
+      "thresholdWords": 100000,
+      "emoji": "🔴",
+      "requirements": {
+        "chapter2ReadRate": "> 50%",
+        "_note_chapter2": "建议人工审核第2章吸引力",
+        "readRate100k": "> 20%",
+        "_note_100k": "10万字完读率标志长线吸引力"
+      },
+      "details": "生死战：连续14天大流量测试。第2章完读率>50%、10万字完读率>20% 是典型及格线。"
+    },
+    {
+      "id": "full-attendance",
+      "label": "全勤",
+      "thresholdWords": 80000,
+      "emoji": "💸",
+      "requirements": {
+        "dailyMinWords": 4000,
+        "noMissDays": 30,
+        "advancedDailyMinWords": 6000
+      },
+      "details": "日更≥4000字(普通全勤约600元/月)，日更≥6000字(进阶全勤约800元/月+更高推荐权重)。月收入≈1300+。"
+    }
+  ],
+
+  "redlines": {
+    "political": {
+      "label": "涉政 / 涉黑 / 侮辱英烈",
+      "severity": "critical",
+      "description": "涉及现实地名、官职、历史事件务必架空。建议用虚构国名、地名。",
+      "keywords": ["习近平", "毛泽东", "邓小平", "天安门", "文革", "国民党", "共产党", "中央", "国务院", "政治局", "烈士", "英烈"],
+      "_note": "关键词扫描为启发式检测，最终审核责任在作者。"
+    },
+    "sexual": {
+      "label": "涉黄（脖子以下）",
+      "severity": "critical",
+      "description": "全年龄平台，严禁具体人体器官描写、性行为动词。",
+      "keywords": ["乳房", "胸部", "大腿根部", "呻吟", "娇喘", "高潮", "裸体", "一丝不挂", "挑逗", "爱抚", "插入"]
+    },
+    "violence": {
+      "label": "过度血腥 / 暴力 / 封建迷信",
+      "severity": "warning",
+      "description": "恐怖小说不要写得太恶心，灵异最后要能用科学或架空世界观解释。",
+      "keywords": ["肠子", "内脏", "血肉模糊", "肢解", "剥皮", "碎尸", "眼球", "脑浆", "抽筋扒皮"]
+    }
+  },
+
+  "aiPitfalls": {
+    "logic_collapse": {
+      "label": "逻辑崩坏（低质量内容）",
+      "severity": "warning",
+      "description": "AI生成前后矛盾 → 人工通读，检查设定一致性"
+    },
+    "repetition": {
+      "label": "重复注水（车轱辘话）",
+      "severity": "warning",
+      "description": "同一句话反复说 → 删除冗余，保留有效信息"
+    },
+    "overlong_context": {
+      "label": "上下文溢出",
+      "severity": "info",
+      "description": "不要一次性让AI写太多，建议十章十章写大纲"
+    }
+  },
+
+  "templates": {
+    "tag_prompt": "请从该图片中选择最符合该小说的【主分类】，仅给答案即可",
+    "intro_prompt": "请给该小说创作番茄爽文小说风格的简介，500字以内",
+    "cover_prompt_template": "番茄爽文小说封面创作：\n书名：${title}\n使用潇洒有力、略带一点俏皮感的手写艺术字体，颜色要醒目，与封面背景形成对比。\n作者：${author}/著\n比例：3:4\n${coverDescription}",
+    "anti_drift_prompt": "我需要修改第【X】章的大纲/正文内容。\n\n修改需求：\n将原本的【旧情节】修改为【新情节：.......】。\n\n执行要求：\n1. 用符合时间线发展的新情节替换原有内容。\n2. 确保不仅第【X】章逻辑通顺，且能平滑过渡到第【X+1】章。\n3. 逻辑自检：请检查这次修改是否会与前文的设定（如主角能力限制）冲突？如果冲突，请在生成内容前先提示我。\n\n如果无冲突，请直接输出修改后的完整内容。",
+    "benchmark_analysis_prompt": "找到一本对标书，问自己三个问题：\n1. 主角的金手指是什么？（系统？透视眼？重生？）\n2. 主角的第一个矛盾冲突是什么？（退婚？被看不起？复仇？）\n3. 这本书的书名有什么特点？"
+  }
+}

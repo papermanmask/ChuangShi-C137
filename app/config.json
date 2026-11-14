@@ -1,0 +1,12 @@
+{
+  "port": 8787,
+  "currency": "¥",
+  "rate": 7.1,
+  "initial_balance": 50.0,
+  "key_file": "key.enc",
+  "prices": {
+    "deepseek-v4-flash": {"input": 0.14, "input_cached": 0.0028, "output": 0.28},
+    "deepseek-v4-pro": {"input": 0.435, "input_cached": 0.0087, "output": 0.87},
+    "default": {"input": 0.14, "input_cached": 0.0028, "output": 0.28}
+  }
+}

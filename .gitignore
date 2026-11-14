@@ -1,0 +1,30 @@
+# 凭据与运行期数据（绝不入库）
+key.enc
+*.enc
+*.key
+.env
+.env.*
+*.db
+*.db-wal
+*.db-shm
+*.log
+usage.json
+usage_ledger.json
+proxy.log
+
+# 本地备份 / 缓存 / 运行时
+*.bak
+*.bak_*
+*.pre_*
+__pycache__/
+*.pyc
+node_modules/
+runtime/
+logs/
+app.bak_*/
+
+# 创作数据与大体积素材（本地保留，不随公开仓库分发）
+project/books/
+project/state/
+project/.trash/
+app/assets/

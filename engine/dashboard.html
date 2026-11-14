@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InkOS 实时用量监控</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --ink: #1f2733;
+    --muted: #7a8699;
+    --line: #e6eaf0;
+    --brand: #3b6ef6;
+    --brand-soft: #eaf0ff;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    padding: 24px;
+  }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  h1 { font-size: 20px; margin: 0; font-weight: 650; }
+  .status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .dot.live { background: var(--green); box-shadow: 0 0 0 4px rgba(22,163,74,.15); }
+  .dot.off { background: var(--red); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px; box-shadow: 0 1px 2px rgba(16,24,40,.04);
+  }
+  .card .label { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+  .card .value { font-size: 26px; font-weight: 700; letter-spacing: .3px; }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .value.green { color: var(--green); }
+  .value.amber { color: var(--amber); }
+  .value.red { color: var(--red); }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; box-shadow: 0 1px 2px rgba(16,24,40,.04);
+  }
+  .panel h2 { font-size: 15px; margin: 0 0 14px; font-weight: 600; }
+  .budget-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); }
+  input, select {
+    border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; font-size: 14px;
+    background: #fff; color: var(--ink); outline: none; min-width: 120px;
+  }
+  input:focus, select:focus { border-color: var(--brand); }
+  button {
+    border: none; border-radius: 9px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--brand); color: #fff; cursor: pointer;
+  }
+  button.ghost { background: var(--brand-soft); color: var(--brand); }
+  button:active { transform: translateY(1px); }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+  th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; }
+  tbody tr:hover { background: #fafbfe; }
+  .empty { color: var(--muted); text-align: center; padding: 22px; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+  .twocol { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 880px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .twocol { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>InkOS 实时用量监控</h1>
+    <div class="status"><span id="dot" class="dot"></span><span id="statusText">连接中…</span></div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">累计输入 Tokens</div>
+      <div class="value" id="vPrompt">0</div>
+      <div class="sub" id="vCached">缓存命中 0</div>
+    </div>
+    <div class="card">
+      <div class="label">累计输出 Tokens</div>
+      <div class="value" id="vCompletion">0</div>
+      <div class="sub">含模型生成内容</div>
+    </div>
+    <div class="card">
+      <div class="label">累计花费</div>
+      <div class="value amber" id="vCost">0.00</div>
+      <div class="sub" id="vCur1">货币 ¥</div>
+    </div>
+    <div class="card">
+      <div class="label">剩余余额（本地核算）</div>
+      <div class="value green" id="vRemain">0.00</div>
+      <div class="sub" id="vCur2">初始 0.00</div>
+    </div>
+  </div>
+
+  <div class="twocol">
+    <div class="panel">
+      <h2>余额设置</h2>
+      <div class="budget-row">
+        <div class="field">
+          <label>初始余额</label>
+          <input id="bInit" type="number" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label>货币</label>
+          <select id="bCur">
+            <option value="¥">¥ 人民币</option>
+            <option value="$">$ 美元</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>汇率（价格→货币）</label>
+          <input id="bRate" type="number" step="0.01" min="0" />
+        </div>
+      </div>
+      <div class="budget-row" style="margin-top:12px;">
+        <button id="bSave">保存设置</button>
+        <button id="bTopup" class="ghost">充值 +10</button>
+        <button id="bReset" class="ghost">清零累计</button>
+      </div>
+      <div class="note">
+        余额 = 初始余额 − 累计花费。<br/>
+        DeepSeek 不提供用 API Key 查询账户余额的接口，此处为<strong>本地核算值</strong>，
+        实际账户余额请在 DeepSeek 平台核对。<br/>
+        价格按官方 V4：flash 输入未命中 $0.14 / 命中 $0.0028、输出 $0.28（每 1M tokens）；
+        pro 输入未命中 $0.435、输出 $0.87。汇率默认 1（即按 ¥ 计）。
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>最近调用</h2>
+      <table>
+        <thead>
+          <tr><th>时间</th><th>模型</th><th>输入</th><th>输出</th><th>缓存</th><th>花费</th></tr>
+        </thead>
+        <tbody id="rows">
+          <tr><td colspan="6" class="empty">暂无数据，运行 InkOS 写章后即出现</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => (n == null ? "0" : Number(n).toLocaleString("zh-CN"));
+  const money = (n) => (n == null ? "0.00" : Number(n).toLocaleString("zh-CN", {minimumFractionDigits: 2, maximumFractionDigits: 4}));
+
+  function render(s) {
+    $("vPrompt").textContent = fmt(s.prompt_tokens);
+    $("vCached").textContent = "缓存命中 " + fmt(s.cached_tokens);
+    $("vCompletion").textContent = fmt(s.completion_tokens);
+    $("vCost").textContent = money(s.spent_local);
+    $("vCur1").textContent = "货币 " + (s.currency || "¥");
+    $("vRemain").textContent = money(s.remaining);
+    $("vCur2").textContent = "初始 " + money(s.initial_balance) + " " + (s.currency || "¥");
+
+    const remain = Number(s.remaining);
+    const vRemain = $("vRemain");
+    vRemain.className = "value " + (remain < 0 ? "red" : remain < 5 ? "amber" : "green");
+
+    const rows = $("rows");
+    if (!s.history || !s.history.length) {
+      rows.innerHTML = '<tr><td colspan="6" class="empty">暂无数据，运行 InkOS 写章后即出现</td></tr>';
+    } else {
+      rows.innerHTML = s.history.map((h) => `
+        <tr>
+          <td>${h.ts}</td>
+          <td>${h.model}</td>
+          <td>${fmt(h.prompt)}</td>
+          <td>${fmt(h.completion)}</td>
+          <td>${fmt(h.cached)}</td>
+          <td>${money(h.cost)}</td>
+        </tr>`).join("");
+    }
+  }
+
+  function loadForm(s) {
+    $("bInit").value = s.initial_balance ?? 0;
+    $("bCur").value = s.currency || "¥";
+    $("bRate").value = s.rate ?? 1;
+  }
+
+  async function refresh() {
+    try {
+      const r = await fetch("/api/state");
+      const s = await r.json();
+      render(s);
+      loadForm(s);
+    } catch (e) { /* ignore */ }
+  }
+
+  // SSE live updates
+  function connect() {
+    const es = new EventSource("/stream");
+    es.onopen = () => { $("dot").className = "dot live"; $("statusText").textContent = "实时连接"; };
+    es.onmessage = (ev) => {
+      try { render(JSON.parse(ev.data)); } catch (e) {}
+    };
+    es.onerror = () => { $("dot").className = "dot off"; $("statusText").textContent = "断开，重连中…"; setTimeout(connect, 2000); };
+  }
+
+  async function saveBudget(add) {
+    const payload = {
+      initial_balance: parseFloat($("bInit").value || "0"),
+      currency: $("bCur").value,
+      rate: parseFloat($("bRate").value || "1"),
+    };
+    if (add) payload.initial_balance += add;
+    const r = await fetch("/api/budget", {
+      method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload),
+    });
+    const s = await r.json();
+    loadForm(s);
+    refresh();
+  }
+
+  $("bSave").onclick = () => saveBudget(0);
+  $("bTopup").onclick = () => saveBudget(10);
+  $("bReset").onclick = () => { if (confirm("仅清零本地累计用量（不影响已花费金额与余额设置），确定？")) { fetch("/api/reset", {method:"POST"}).then(refresh); } };
+
+  refresh();
+  connect();
+  setInterval(refresh, 5000); // fallback polling
+</script>
+</body>
+</html>
